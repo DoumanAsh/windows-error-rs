@@ -3,6 +3,7 @@ name = "windows-error"
 version = "1.0.0"
 authors = ["Douman <douman@gmx.se>"]
 description = "Library to provide wrapper over Windows errors"
+repository = "https://github.com/DoumanAsh/windows-error-rs"
 documentation = "http://doumanash.github.io/windows-error-rs/doc/windows_error/index.html"
 license = "MIT"
 keywords = ["Windows", "winapi"]
