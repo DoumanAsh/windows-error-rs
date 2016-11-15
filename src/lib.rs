@@ -1,3 +1,4 @@
+#![cfg(windows)]
 //! Windows Error
 //!
 //! This crate provide simple means to operate WinAPI errors.
