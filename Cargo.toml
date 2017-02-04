@@ -1,6 +1,6 @@
 [package]
 name = "windows-error"
-version = "1.0.1"
+version = "1.0.2"
 authors = ["Douman <douman@gmx.se>"]
 description = "Library to provide wrapper over Windows errors"
 repository = "https://github.com/DoumanAsh/windows-error-rs"

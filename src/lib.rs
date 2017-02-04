@@ -19,6 +19,37 @@ use kernel32::{
     GetLastError
 };
 
+fn format_message_error(buff: &[u16]) -> String {
+    match unsafe {GetLastError()} {
+        122 => String::from_utf16_lossy(buff), //Insufficient memory
+        _ => "Unknown Error.".to_string()
+    }
+}
+
+fn format_message_ok(buff: &[u16]) -> String {
+    String::from_utf16_lossy(&buff[0..buff.len()-2])
+}
+
+///Returns description of error code.
+///
+///`Unknown Error.` is returned in case of bad error code.
+pub fn format_error(errno: u32) -> String {
+    const BUF_SIZE: usize = 512;
+    const FMT_FLAGS: DWORD = FORMAT_MESSAGE_IGNORE_INSERTS | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ARGUMENT_ARRAY;
+    let mut format_buff: [u16; BUF_SIZE] = [0; BUF_SIZE];
+
+    let num_chars: u32 = unsafe { FormatMessageW(FMT_FLAGS,
+                                                 std::ptr::null(), errno,
+                                                 0, format_buff.as_mut_ptr(),
+                                                 BUF_SIZE as u32, std::ptr::null_mut()) };
+
+    if num_chars == 0 {
+        format_message_error(&format_buff)
+    } else {
+        format_message_ok(&format_buff[0..num_chars as usize])
+    }
+}
+
 use std::error::Error;
 use std::fmt;
 
@@ -45,22 +76,7 @@ impl WindowsError {
 
     ///Returns description of underlying error code.
     pub fn errno_desc(&self) -> String {
-        const BUF_SIZE: usize = 512;
-        const FMT_FLAGS: DWORD = FORMAT_MESSAGE_IGNORE_INSERTS | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ARGUMENT_ARRAY;
-        let mut format_buff: [u16; BUF_SIZE] = [0; BUF_SIZE];
-        let num_chars: u32 = unsafe { FormatMessageW(FMT_FLAGS,
-                                                     std::ptr::null(), self.0,
-                                                     0, format_buff.as_mut_ptr(),
-                                                     BUF_SIZE as u32, std::ptr::null_mut()) };
-
-        let num_chars: usize = num_chars as usize;
-        //Errors are formatted with windows new lines at the end.
-        //If string does not end with /r/n then, most possibly, it is not a error
-        //but some other system thing(who knows what...)
-        if num_chars == 0 || format_buff[num_chars-1] != 10 {
-            return "Unknown Error.".to_string();
-        }
-        String::from_utf16_lossy(&format_buff[0..num_chars-2])
+        format_error(self.0)
     }
 }
 
