@@ -1,13 +1,9 @@
 [package]
 name = "windows-error"
-version = "1.0.2"
+version = "1.1.0"
 authors = ["Douman <douman@gmx.se>"]
 description = "Library to provide wrapper over Windows errors"
 repository = "https://github.com/DoumanAsh/windows-error-rs"
 documentation = "https://docs.rs/crate/windows-error/"
 license = "MIT"
 keywords = ["Windows", "winapi"]
-
-[target.'cfg(windows)'.dependencies]
-winapi = "^0.2.5"
-kernel32-sys = "^0.2.1"

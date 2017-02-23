@@ -4,20 +4,29 @@
 //! This crate provide simple means to operate WinAPI errors.
 //!
 
-
-extern crate winapi;
-extern crate kernel32;
-
-use winapi::{DWORD};
-use winapi::winbase::{
-    FORMAT_MESSAGE_ARGUMENT_ARRAY,
-    FORMAT_MESSAGE_FROM_SYSTEM,
-    FORMAT_MESSAGE_IGNORE_INSERTS
+use std::os::raw::{
+    c_ulong,
+    c_void,
+    c_ushort,
+    c_char
 };
-use kernel32::{
-    FormatMessageW,
-    GetLastError
-};
+
+type DWORD = c_ulong;
+
+const FORMAT_MESSAGE_ARGUMENT_ARRAY: DWORD = 0x00002000;
+const FORMAT_MESSAGE_FROM_SYSTEM: DWORD = 0x00001000;
+const FORMAT_MESSAGE_IGNORE_INSERTS: DWORD = 0x00000200;
+
+extern "system" {
+    fn GetLastError() -> DWORD;
+    fn FormatMessageW(dwFlags: DWORD,
+                      lpSource: *const c_void,
+                      dwMessageId: DWORD,
+                      dwLanguageId: DWORD,
+                      lpBuffer: *mut c_ushort,
+                      nSize: DWORD,
+                      Arguments: *mut c_char) -> DWORD;
+}
 
 fn format_message_error(buff: &[u16]) -> String {
     match unsafe {GetLastError()} {
@@ -74,6 +83,7 @@ impl WindowsError {
         self.0
     }
 
+    #[inline(always)]
     ///Returns description of underlying error code.
     pub fn errno_desc(&self) -> String {
         format_error(self.0)
